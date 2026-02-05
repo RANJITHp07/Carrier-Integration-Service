@@ -76,7 +76,7 @@ it("handles malformed UPS response", async () => {
   ).rejects.toMatchObject({
     type: ErrorType.MALFORMED_RESPONSE,
     carrier: CarrierType.UPS,
-    retryable: false,
+    retryable: true,
   });
 });
 
