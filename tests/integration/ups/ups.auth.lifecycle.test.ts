@@ -1,15 +1,16 @@
+import { UpsOAuthTokenResponse } from "../../../src/infra/carrier/ups/auth/types/OAuthTypes";
 import { UpsOAuthClient } from "../../../src/infra/carrier/ups/auth/UpsOAuthClient";
 import { FakeHttpClient } from "../FakeHttpClient.test";
 
 it("acquires, reuses, and refreshes OAuth token on expiry", async () => {
   const http = new FakeHttpClient();
 
-  http.enqueueResponse({
+  http.enqueueResponse<UpsOAuthTokenResponse>({
     access_token: "token-1",
     expires_in: 1,
   });
 
-  http.enqueueResponse({
+  http.enqueueResponse<UpsOAuthTokenResponse>({
     access_token: "token-2",
     expires_in: 3600,
   });

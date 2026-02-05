@@ -3,6 +3,11 @@ import { CarrierError } from "../../../domain/errors/CarrierError";
 import { ErrorType } from "../../../domain/errors/ErrorType";
 import { HttpClient } from "../../http/HttpClient";
 
+type HttpError = {
+  status?: number;
+  message?: string;
+};
+
 export class UpsHttpClient {
   constructor(
     private readonly http: HttpClient,
@@ -18,8 +23,9 @@ export class UpsHttpClient {
         },
         body: payload,
       });
-    } catch (error: any) {
-      if (error?.status === 401 || error?.status === 403) {
+    } catch (error) {
+      const err = error as HttpError;
+      if (err?.status === 401 || err?.status === 403) {
         throw new CarrierError(
           ErrorType.AUTH_FAILED,
           CarrierType.UPS,
@@ -29,7 +35,7 @@ export class UpsHttpClient {
         );
       }
 
-      if (error?.status === 429) {
+      if (err?.status === 429) {
         throw new CarrierError(
           ErrorType.RATE_LIMITED,
           CarrierType.UPS,

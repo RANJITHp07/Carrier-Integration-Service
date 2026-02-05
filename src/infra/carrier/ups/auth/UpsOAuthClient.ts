@@ -2,12 +2,14 @@ import { OAuthToken } from "./OAuthToken";
 import { CarrierError } from "../../../../domain/errors/CarrierError";
 import { ErrorType } from "../../../../domain/errors/ErrorType";
 import { CarrierType } from "../../../../domain/carrier/Carrier";
+import { HttpClient } from "../../../http/HttpClient";
+import { UpsOAuthTokenResponse } from "./types/OAuthTypes";
 
 export class UpsOAuthClient {
   private token?: OAuthToken;
 
   constructor(
-    private readonly http: any,
+    private readonly http: HttpClient,
     private readonly tokenUrl: string,
     private readonly clientId: string,
     private readonly clientSecret: string,
@@ -20,7 +22,7 @@ export class UpsOAuthClient {
 
     let response;
     try {
-      response = await this.http.post({
+      response = await this.http.post<UpsOAuthTokenResponse>({
         url: this.tokenUrl,
         body: {
           grant_type: "client_credentials",

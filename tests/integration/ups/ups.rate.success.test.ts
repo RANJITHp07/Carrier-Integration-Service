@@ -4,16 +4,18 @@ import { CarrierType } from "../../../src/domain/carrier/Carrier";
 import { ServiceLevel } from "../../../src/domain/rate/ServiceLevel";
 import { FakeHttpClient } from "../FakeHttpClient.test";
 import { UpsCarrier } from "../../../src/infra/carrier/ups/UpsCarrier";
+import { UpsOAuthTokenResponse } from "../../../src/infra/carrier/ups/auth/types/OAuthTypes";
+import { UpsRateResponse } from "../../../src/infra/carrier/ups/rate/UpsRateResponse";
 
 it("builds UPS rate request and normalizes successful response", async () => {
   const http = new FakeHttpClient();
 
-  http.enqueueResponse({
+  http.enqueueResponse<UpsOAuthTokenResponse>({
     access_token: "ups-token",
     expires_in: 3600,
   });
 
-  http.enqueueResponse({
+  http.enqueueResponse<UpsRateResponse>({
     RateResponse: {
       RatedShipment: [
         {
