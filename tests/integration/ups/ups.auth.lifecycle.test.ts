@@ -15,7 +15,12 @@ it("acquires, reuses, and refreshes OAuth token on expiry", async () => {
     expires_in: 3600,
   });
 
-  const oauth = new UpsOAuthClient(http, "token-url", "id", "secret");
+  const oauth = new UpsOAuthClient({
+    http,
+    tokenUrl: "token-url",
+    clientId: "id",
+    clientSecret: "secret",
+  });
 
   const t1 = await oauth.getAccessToken();
 

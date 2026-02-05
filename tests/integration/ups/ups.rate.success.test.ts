@@ -5,7 +5,7 @@ import { ServiceLevel } from "../../../src/domain/rate/ServiceLevel";
 import { FakeHttpClient } from "../FakeHttpClient.test";
 import { UpsCarrier } from "../../../src/infra/carrier/ups/UpsCarrier";
 import { UpsOAuthTokenResponse } from "../../../src/infra/carrier/ups/auth/types/OAuthTypes";
-import { UpsRateResponse } from "../../../src/infra/carrier/ups/rate/UpsRateResponse";
+import { UpsRateResponse } from "../../../src/infra/carrier/ups/UpsTypes";
 
 it("builds UPS rate request and normalizes successful response", async () => {
   const http = new FakeHttpClient();
@@ -29,10 +29,15 @@ it("builds UPS rate request and normalizes successful response", async () => {
     },
   });
 
-  const carrier = new UpsCarrier(
-    new UpsOAuthClient(http, "token-url", "id", "secret"),
-    new UpsHttpClient(http, "rate-url"),
-  );
+  const carrier = new UpsCarrier({
+    auth: new UpsOAuthClient({
+      http,
+      tokenUrl: "token-url",
+      clientId: "id",
+      clientSecret: "secret",
+    }),
+    http: new UpsHttpClient({ http, rateUrl: "rate-url" }),
+  });
 
   const rates = await carrier.getRates({
     origin: { postalCode: "10001", countryCode: "US" },
