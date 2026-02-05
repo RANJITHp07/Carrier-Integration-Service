@@ -1,28 +1,19 @@
 import { ServiceLevel } from "../../../domain/rate/ServiceLevel";
-import { CarrierError } from "../../../domain/errors/CarrierError";
-import { ErrorType } from "../../../domain/errors/ErrorType";
-import { CarrierType } from "../../../domain/carrier/Carrier";
+import { assertNever } from "../../utils/defaultCaseWrapper";
 
-export function mapUpsServiceLevel(code: string): ServiceLevel {
+type UpsServiceCode = "01" | "02" | "03" | "13";
+
+export function mapUpsServiceLevel(code: UpsServiceCode): ServiceLevel {
   switch (code) {
     case "03":
       return ServiceLevel.GROUND;
-
     case "02":
       return ServiceLevel.EXPRESS;
-
     case "13":
       return ServiceLevel.EXPRESS_SAVER;
-
     case "01":
       return ServiceLevel.NEXT_DAY_AIR;
-
     default:
-      throw new CarrierError(
-        ErrorType.MALFORMED_RESPONSE,
-        CarrierType.UPS,
-        `Unsupported UPS service code: ${code}`,
-        false,
-      );
+      return assertNever<string>(code);
   }
 }

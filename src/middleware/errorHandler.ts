@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { CarrierError } from "../domain/errors/CarrierError";
 import { ErrorType } from "../domain/errors/ErrorType";
+import { assertNever } from "../infra/utils/defaultCaseWrapper";
+import { ZodError } from "zod";
 
 export function errorHandler(
   err: unknown,
@@ -15,6 +17,15 @@ export function errorHandler(
       message: err.message,
       retryable: err.retryable,
       details: err.details,
+    });
+    return;
+  }
+
+  if (err instanceof ZodError) {
+    res.status(400).json({
+      error: ErrorType.MALFORMED_RESPONSE,
+      message: "Validation failed",
+      issues: err.issues, // detailed Zod error info
     });
     return;
   }
@@ -45,6 +56,6 @@ function mapCarrierErrorToStatus(type: ErrorType): number {
     case ErrorType.MALFORMED_RESPONSE:
       return 502;
     default:
-      return 500;
+      return assertNever(type);
   }
 }

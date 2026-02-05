@@ -4,6 +4,7 @@ import { FetchHttpClient } from "../infra/http/FetchHttpClient";
 import { UpsOAuthClient } from "../infra/carrier/ups/auth/UpsOAuthClient";
 import { UpsHttpClient } from "../infra/carrier/ups/UpsHttpClient";
 import { UpsCarrier } from "../infra/carrier/ups/UpsCarrier";
+import { assertNever } from "../infra/utils/defaultCaseWrapper";
 
 export class CarrierFactory {
   private readonly httpClient = new FetchHttpClient();
@@ -13,7 +14,7 @@ export class CarrierFactory {
       case CarrierType.UPS:
         return this.createUpsCarrier();
       default:
-        throw new Error(`Unsupported carrier: ${type}`);
+        return assertNever<string>(type);
     }
   }
 
