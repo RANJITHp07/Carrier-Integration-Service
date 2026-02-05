@@ -1,0 +1,6 @@
+export enum ServiceLevel {
+  GROUND = "GROUND",
+  EXPRESS = "EXPRESS",
+  EXPRESS_SAVER = "EXPRESS_SAVER",
+  NEXT_DAY_AIR = "NEXT_DAY_AIR",
+}
