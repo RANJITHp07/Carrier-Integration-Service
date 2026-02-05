@@ -11,13 +11,13 @@ export class UpsRateResponseParser {
     try {
       parsed = UpsRateResponseSchema.parse(raw);
     } catch (err) {
-      throw new CarrierError(
-        ErrorType.MALFORMED_RESPONSE,
-        CarrierType.UPS,
-        "Invalid UPS rate response",
-        false,
-        err,
-      );
+      throw new CarrierError({
+        type: ErrorType.MALFORMED_RESPONSE,
+        carrier: CarrierType.UPS,
+        message: "Invalid UPS rate response",
+        retryable: true,
+        details: err,
+      });
     }
 
     return parsed.RateResponse.RatedShipment.map((s) => ({

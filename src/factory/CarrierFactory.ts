@@ -19,18 +19,18 @@ export class CarrierFactory {
   }
 
   private createUpsCarrier(): Carrier {
-    const oauthClient = new UpsOAuthClient(
-      this.httpClient,
-      env.UPS_OAUTH_TOKEN_URL,
-      env.UPS_CLIENT_ID,
-      env.UPS_CLIENT_SECRET,
-    );
+    const oauthClient = new UpsOAuthClient({
+      http: this.httpClient,
+      tokenUrl: env.UPS_OAUTH_TOKEN_URL,
+      clientId: env.UPS_CLIENT_ID,
+      clientSecret: env.UPS_CLIENT_SECRET,
+    });
 
-    const upsHttpClient = new UpsHttpClient(
-      this.httpClient,
-      env.UPS_RATE_API_URL,
-    );
+    const upsHttpClient = new UpsHttpClient({
+      http: this.httpClient,
+      rateUrl: env.UPS_RATE_API_URL,
+    });
 
-    return new UpsCarrier(oauthClient, upsHttpClient);
+    return new UpsCarrier({ auth: oauthClient, http: upsHttpClient });
   }
 }

@@ -7,20 +7,27 @@ import { UpsRateRequestBuilder } from "./rate/UpsRateRequestBuilder";
 import { UpsRateResponseParser } from "./rate/UpsRateResponseParser";
 import { UpsHttpClient } from "./UpsHttpClient";
 
+type UpsCarrierParams = {
+  auth: UpsOAuthClient;
+  http: UpsHttpClient;
+};
+
 export class UpsCarrier implements Carrier {
   private builder = new UpsRateRequestBuilder();
   private parser = new UpsRateResponseParser();
+  private auth: UpsOAuthClient;
+  private http: UpsHttpClient;
 
-  constructor(
-    private readonly auth: UpsOAuthClient,
-    private readonly http: UpsHttpClient,
-  ) {}
+  constructor({ auth, http }: UpsCarrierParams) {
+    this.auth = auth;
+    this.http = http;
+  }
 
-  async getRates(req: RateRequest) {
+  async getRates({ origin, destination, packages }: RateRequest) {
     try {
       const token = await this.auth.getAccessToken();
-      const payload = this.builder.build(req);
-      const response = await this.http.postRates(payload, token);
+      const payload = this.builder.build({ origin, destination, packages });
+      const response = await this.http.postRates({ payload, token });
       return this.parser.parse(response);
     } catch (err) {
       if (err instanceof CarrierError) {
@@ -30,22 +37,22 @@ export class UpsCarrier implements Carrier {
       const message = err instanceof Error ? err.message : "UPS error";
 
       if (message.includes("ETIMEDOUT") || message.includes("timeout")) {
-        throw new CarrierError(
-          ErrorType.NETWORK_ERROR,
-          CarrierType.UPS,
-          "UPS request timed out",
-          true,
-          err,
-        );
+        throw new CarrierError({
+          type: ErrorType.NETWORK_ERROR,
+          carrier: CarrierType.UPS,
+          message: "UPS request timed out",
+          retryable: true,
+          details: err,
+        });
       }
 
-      throw new CarrierError(
-        ErrorType.MALFORMED_RESPONSE,
-        CarrierType.UPS,
-        "UPS rate request failed",
-        true,
-        err,
-      );
+      throw new CarrierError({
+        type: ErrorType.MALFORMED_RESPONSE,
+        carrier: CarrierType.UPS,
+        message: "UPS rate request failed",
+        retryable: true,
+        details: err,
+      });
     }
   }
 }
